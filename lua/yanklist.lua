@@ -1,8 +1,11 @@
 local M = {}
 
 local finder = nil
+
 if vim.g.yanklist_finder == 'fzf-lua' then
   finder = require('yanklist.providers.fzf')
+elseif vim.g.yanklist_finder == 'snacks' then
+  finder = require('yanklist.providers.snacks')
 else
   finder = require('yanklist.providers.telescope')
 end
