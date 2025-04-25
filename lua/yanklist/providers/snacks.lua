@@ -2,7 +2,7 @@ local M = {}
 local utils = require('yanklist.utils')
 local get_yanklist = vim.fn['yanklist#read']
 
-local paste_content = function(item, is_visual, put_after)
+local paste_content = function(item, is_visual, put_right)
   if not item then
     return
   end
@@ -13,13 +13,14 @@ local paste_content = function(item, is_visual, put_after)
   if is_visual then
     vim.schedule(function()
       vim.cmd('normal! gv"_d')
-      vim.api.nvim_put(lines, regtype, false, true)
+      vim.api.nvim_put(lines, regtype, false, false)
     end)
     return
   end
 
+  feedkeys('l')
   vim.schedule(function()
-    vim.api.nvim_put(lines, regtype, put_after, true)
+    vim.api.nvim_put(lines, regtype, put_right, false)
   end)
 end
 
@@ -67,24 +68,20 @@ function M.yanklist(is_visual, opts)
           vim.fn.setreg('+', item.data or item.text, item.regtype)
         end
       end,
-      paste_before = function(picker, item)
+      paste_P = function(picker, item)
         picker:close()
-        if item then
-          paste_content(item, is_visual, false)
-        end
+        paste_content(item, is_visual, false)
       end,
     },
     confirm = function(picker, item)
       picker:close()
-      if item then
-        paste_content(item, is_visual, true)
-      end
+      paste_content(item, is_visual, true)
     end,
     win = {
       input = {
         keys = {
           ['<c-y>'] = { 'yank', mode = { 'n', 'i' } },
-          ['<c-t>'] = { 'paste_before', mode = { 'n', 'i' } },
+          ['<c-t>'] = { 'paste_P', mode = { 'n', 'i' } },
         },
       },
     },
